@@ -1,4 +1,4 @@
-import { SignJWT } from "jose";
+import { SignJWT, jwtVerify } from "jose";
 
 function getJwtSecret() {
   const jwtSecret = process.env.JWT_SECRET;
@@ -20,3 +20,19 @@ export async function createAuthToken(userId: string) {
     .setExpirationTime("7d")
     .sign(secret);
 }
+
+export async function verifyAuthToken(token: string) {
+  const secret = getJwtSecret();
+
+  const { payload } = await jwtVerify(token, secret, {
+    algorithms: ["HS256"],
+  });
+
+  if (!payload.sub) {
+    throw new Error("Token does not contain a user ID");
+  }
+
+  return payload.sub;
+}
+
+

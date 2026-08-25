@@ -1,15 +1,19 @@
 import express from "express";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import { loadEnvFile } from "node:process";
+
 import User from "./models/User.js";
-import { hashPassword,
-    verifyPassword,
- } from "./utils/password.js";
+import { hashPassword, verifyPassword } from "./utils/password.js";
 import { createAuthToken } from "./utils/auth.js";
+import { requireAuth } from "./middleware/requireAuth.js";
+
 loadEnvFile();
 
 const app = express();
+
 app.use(express.json());
+app.use(cookieParser());
 
 const PORT = 3000;
 
@@ -22,14 +26,14 @@ app.get("/api/health", (_req, res) => {
 app.get("/api/users", async (_req, res) => {
   try {
     const users = await User.find().select(
-      "name email createdAt updatedAt"
+      "name email createdAt updatedAt",
     );
 
-    res.json(users);
+    return res.status(200).json(users);
   } catch (error) {
     console.error("Failed to fetch users:", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to fetch users",
     });
   }
@@ -37,7 +41,7 @@ app.get("/api/users", async (_req, res) => {
 
 app.post("/api/auth/register", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password } = req.body ?? {};
 
     if (
       typeof name !== "string" ||
@@ -49,7 +53,11 @@ app.post("/api/auth/register", async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(409).json({
@@ -60,8 +68,8 @@ app.post("/api/auth/register", async (req, res) => {
     const passwordHash = await hashPassword(password);
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       passwordHash,
     });
 
@@ -82,7 +90,7 @@ app.post("/api/auth/register", async (req, res) => {
 
 app.post("/api/auth/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body ?? {};
 
     if (
       typeof email !== "string" ||
@@ -93,7 +101,11 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
       return res.status(401).json({
@@ -112,14 +124,16 @@ app.post("/api/auth/login", async (req, res) => {
       });
     }
 
-    const token = await createAuthToken(user._id.toString());
-  
-  res.cookie("auth_token", token, {
-  httpOnly: true,
-  sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-});
+    const token = await createAuthToken(
+      user._id.toString(),
+    );
+
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
       id: user._id,
@@ -135,6 +149,40 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+app.get(
+  "/api/auth/me",
+  requireAuth,
+  async (_req, res) => {
+    try {
+      const user = await User.findById(
+        res.locals.userId,
+      ).select("name email createdAt");
+
+      if (!user) {
+        return res.status(401).json({
+          message: "Unauthorized",
+        });
+      }
+
+      return res.status(200).json({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to fetch current user:",
+        error,
+      );
+
+      return res.status(500).json({
+        message: "Failed to fetch current user",
+      });
+    }
+  },
+);
+
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
 
@@ -148,13 +196,18 @@ async function startServer() {
     console.log("Connected to MongoDB");
 
     app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(
+        `Server is running on http://localhost:${PORT}`,
+      );
     });
   } catch (error) {
-    console.error("Failed to connect to MongoDB:", error);
+    console.error(
+      "Failed to connect to MongoDB:",
+      error,
+    );
+
     process.exit(1);
   }
 }
 
-
-startServer(); 
+startServer();
