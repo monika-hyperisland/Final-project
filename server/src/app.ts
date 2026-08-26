@@ -7,6 +7,7 @@ import User from "./models/User.js";
 import { hashPassword, verifyPassword } from "./utils/password.js";
 import { createAuthToken } from "./utils/auth.js";
 import { requireAuth } from "./middleware/requireAuth.js";
+import Group from "./models/Group.js";
 
 loadEnvFile();
 
@@ -182,6 +183,66 @@ app.get(
     }
   },
 );
+
+app.post("/api/auth/logout", (_req, res) => {
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  return res.status(200).json({
+    message: "Logged out",
+  });
+});
+
+app.post("/api/groups", requireAuth, async (req, res) => {
+  try {
+    const { name, currency } = req.body ?? {};
+
+    if (
+      typeof name !== "string" ||
+      typeof currency !== "string"
+    ) {
+      return res.status(400).json({
+        message: "Name and currency are required",
+      });
+    }
+
+    const normalizedName = name.trim();
+    const normalizedCurrency = currency.trim().toUpperCase();
+
+    if (!normalizedName || !normalizedCurrency) {
+      return res.status(400).json({
+        message: "Name and currency are required",
+      });
+    }
+
+    const userId = res.locals.userId;
+
+    const group = await Group.create({
+      name: normalizedName,
+      currency: normalizedCurrency,
+      createdBy: userId,
+      members: [userId],
+    });
+
+    return res.status(201).json({
+      id: group._id,
+      name: group.name,
+      currency: group.currency,
+      createdBy: group.createdBy,
+      members: group.members,
+      createdAt: group.createdAt,
+    });
+  } catch (error) {
+    console.error("Failed to create group:", error);
+
+    return res.status(500).json({
+      message: "Failed to create group",
+    });
+  }
+});
 
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
