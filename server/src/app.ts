@@ -244,6 +244,54 @@ app.post("/api/groups", requireAuth, async (req, res) => {
   }
 });
 
+app.get("/api/groups", requireAuth, async (_req, res) => {
+  try {
+    const userId = res.locals.userId;
+
+    const groups = await Group.find({
+      members: userId,
+    }).select(
+      "name currency createdBy members createdAt updatedAt",
+    );
+
+    return res.status(200).json(groups);
+  } catch (error) {
+    console.error("Failed to fetch groups:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch groups",
+    });
+  }
+});
+
+app.get("/api/groups/:id", requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = res.locals.userId;
+
+    const group = await Group.findOne({
+      _id: id,
+      members: userId,
+    }).select(
+      "name currency createdBy members createdAt updatedAt",
+    );
+
+    if (!group) {
+      return res.status(404).json({
+        message: "Group not found",
+      });
+    }
+
+    return res.status(200).json(group);
+  } catch (error) {
+    console.error("Failed to fetch group:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch group",
+    });
+  }
+});
+
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
 
