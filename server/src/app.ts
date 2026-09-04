@@ -292,6 +292,82 @@ app.get("/api/groups/:id", requireAuth, async (req, res) => {
   }
 });
 
+app.post(
+  "/api/groups/:id/members",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { email } = req.body ?? {};
+      const userId = res.locals.userId;
+
+      if (typeof email !== "string") {
+        return res.status(400).json({
+          message: "Email is required",
+        });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (!normalizedEmail) {
+        return res.status(400).json({
+          message: "Email is required",
+        });
+      }
+
+      const group = await Group.findOne({
+        _id: id,
+        createdBy: userId,
+      });
+
+      if (!group) {
+        return res.status(404).json({
+          message: "Group not found",
+        });
+      }
+
+      const member = await User.findOne({
+        email: normalizedEmail,
+      });
+
+      if (!member) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
+
+      const isAlreadyMember = group.members.some((memberId) =>
+        memberId.equals(member._id),
+      );
+
+      if (isAlreadyMember) {
+        return res.status(409).json({
+          message: "User is already a member",
+        });
+      }
+
+      group.members.push(member._id);
+
+      await group.save();
+
+      return res.status(200).json({
+        id: group._id,
+        name: group.name,
+        currency: group.currency,
+        createdBy: group.createdBy,
+        members: group.members,
+        updatedAt: group.updatedAt,
+      });
+    } catch (error) {
+      console.error("Failed to add group member:", error);
+
+      return res.status(500).json({
+        message: "Failed to add group member",
+      });
+    }
+  },
+);
+
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
 
