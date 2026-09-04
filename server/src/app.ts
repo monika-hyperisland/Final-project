@@ -368,6 +368,63 @@ app.post(
   },
 );
 
+app.delete(
+  "/api/groups/:id/members/:memberId",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const { id, memberId } = req.params;
+      const userId = res.locals.userId;
+
+      const group = await Group.findOne({
+        _id: id,
+        createdBy: userId,
+      });
+
+      if (!group) {
+        return res.status(404).json({
+          message: "Group not found",
+        });
+      }
+
+      if (group.createdBy.equals(memberId)) {
+        return res.status(400).json({
+          message: "Group creator cannot be removed",
+        });
+      }
+
+      const memberExists = group.members.some((id) =>
+        id.equals(memberId),
+      );
+
+      if (!memberExists) {
+        return res.status(404).json({
+          message: "Member not found in group",
+        });
+      }
+
+      group.members = group.members.filter(
+        (id) => !id.equals(memberId),
+      );
+
+      await group.save();
+
+      return res.status(200).json({
+        id: group._id,
+        name: group.name,
+        members: group.members,
+        updatedAt: group.updatedAt,
+      });
+    } catch (error) {
+      console.error("Failed to remove group member:", error);
+
+      return res.status(500).json({
+        message: "Failed to remove group member",
+      });
+    }
+  },
+);
+
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
 
