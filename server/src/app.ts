@@ -12,10 +12,17 @@ import Expense from "./models/Expense.js";
 import { splitAmountEqually } from "./utils/splitExpense.js";
 import { calculateBalances } from "./utils/calculateBalances.js";
 import { calculateSettlements } from "./utils/calculateSettlements.js";
-
+import cors from "cors";
 loadEnvFile();
 
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 app.use(cookieParser());
