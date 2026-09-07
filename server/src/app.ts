@@ -285,7 +285,8 @@ app.get("/api/groups/:id", requireAuth, async (req, res) => {
       members: userId,
     }).select(
       "name currency createdBy members createdAt updatedAt",
-    );
+    )
+    .populate("members", "name email");
 
     if (!group) {
       return res.status(404).json({
