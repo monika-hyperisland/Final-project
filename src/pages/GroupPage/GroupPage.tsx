@@ -220,10 +220,10 @@ async function handleCreateExpense(
     setExpenses(updatedExpenses);
 
     const updatedBalances = await getBalances(id);
-const updatedSettlements = await getSettlements(id);
+    const updatedSettlements = await getSettlements(id);
 
-setBalances(updatedBalances);
-setSettlements(updatedSettlements);
+    setBalances(updatedBalances);
+    setSettlements(updatedSettlements);
 
     setExpenseDescription("");
     setExpenseAmount("");

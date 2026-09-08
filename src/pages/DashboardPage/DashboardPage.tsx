@@ -4,7 +4,11 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { getCurrentUser } from "../../services/authService";
+import {
+  getCurrentUser,
+  logout,
+} from "../../services/authService";
+
 import {
   createGroup,
   getGroups,
@@ -52,6 +56,15 @@ function DashboardPage() {
     loadDashboard();
   }, [navigate]);
 
+  async function handleLogout() {
+    try {
+      await logout();
+      navigate("/login");
+    } catch {
+      setError("Failed to log out");
+    }
+  }
+
   async function handleCreateGroup(
     event: React.SyntheticEvent<HTMLFormElement>,
   ) {
@@ -84,6 +97,13 @@ function DashboardPage() {
       {user && (
         <p>Welcome, {user.name}</p>
       )}
+
+      <button
+      type="button"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
 
       <h2>Create group</h2>
 
