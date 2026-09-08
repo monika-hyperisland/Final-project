@@ -1,6 +1,8 @@
 import { useEffect,
   useState,
-  type SyntheticEvent } from "react";
+  type SyntheticEvent 
+} from "react";
+
 import {
   Link,
   useNavigate,
@@ -12,12 +14,38 @@ import {
   getGroup,
   removeMember,
 } from "../../services/groupService";
+
+import { 
+  createExpense,
+   getExpenses, } from "../../services/expenseService";
+
+import {
+  getBalances,
+  getSettlements,
+} from "../../services/balanceService";
 interface Member {
   _id: string;
   name: string;
   email: string;
 }
 
+interface Expense {
+  _id: string;
+  description: string;
+  amountCents: number;
+  paidBy: string;
+}
+
+interface Balance {
+  userId: string;
+  balanceCents: number;
+}
+
+interface Settlement {
+  from: string;
+  to: string;
+  amountCents: number;
+}
 interface Group {
   _id: string;
   name: string;
@@ -28,13 +56,25 @@ interface Group {
 function GroupPage() {
   const { id } = useParams();
 
-  const [group, setGroup] = useState<Group | null>(null);
-  const [error, setError] = useState("");
+const [group, setGroup] = useState<Group | null>(null);
+const [error, setError] = useState("");
 
-  const [memberEmail, setMemberEmail] = useState("");
-  const [memberError, setMemberError] = useState("");
+const [memberEmail, setMemberEmail] = useState("");
+const [memberError, setMemberError] = useState("");
 
-  const navigate = useNavigate();
+const [expenses, setExpenses] = useState<Expense[]>([]);
+const [expensesError, setExpensesError] = useState("");
+
+const [expenseDescription, setExpenseDescription] = useState("");
+const [expenseAmount, setExpenseAmount] = useState("");
+const [paidBy, setPaidBy] = useState("");
+const [expenseFormError, setExpenseFormError] = useState("");
+
+const [balances, setBalances] = useState<Balance[]>([]);
+const [settlements, setSettlements] = useState<Settlement[]>([]);
+const [balanceError, setBalanceError] = useState("");
+
+const navigate = useNavigate();
 
   useEffect(() => {
     async function loadGroup() {
@@ -54,6 +94,45 @@ function GroupPage() {
     loadGroup();
   }, [id]);
   
+  useEffect(() => {
+  async function loadExpenses() {
+    if (!id) {
+      return;
+    }
+
+    try {
+      const expenseData = await getExpenses(id);
+      setExpenses(expenseData);
+    } catch {
+      setExpensesError("Failed to load expenses");
+    }
+  }
+
+  loadExpenses();
+}, [id]);
+
+useEffect(() => {
+  async function loadBalances() {
+    if (!id) {
+      return;
+    }
+
+    try {
+      const balanceData = await getBalances(id);
+      const settlementData = await getSettlements(id);
+
+      setBalances(balanceData);
+      setSettlements(settlementData);
+    } catch {
+      setBalanceError(
+        "Failed to load balances and settlements",
+      );
+    }
+  }
+
+  loadBalances();
+}, [id]);
+
   async function handleAddMember(
   event: SyntheticEvent<HTMLFormElement>,
 ) {
@@ -105,6 +184,59 @@ function GroupPage() {
   }
 }
 
+async function handleCreateExpense(
+  event: SyntheticEvent<HTMLFormElement>,
+) {
+  event.preventDefault();
+
+  if (!id) {
+    return;
+  }
+
+  setExpenseFormError("");
+
+  const amount = Number(expenseAmount);
+  const amountCents = Math.round(amount * 100);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    setExpenseFormError("Enter a valid amount");
+    return;
+  }
+
+  if (!paidBy) {
+    setExpenseFormError("Select who paid");
+    return;
+  }
+
+  try {
+    await createExpense(
+      id,
+      expenseDescription,
+      amountCents,
+      paidBy,
+    );
+
+    const updatedExpenses = await getExpenses(id);
+    setExpenses(updatedExpenses);
+
+    const updatedBalances = await getBalances(id);
+const updatedSettlements = await getSettlements(id);
+
+setBalances(updatedBalances);
+setSettlements(updatedSettlements);
+
+    setExpenseDescription("");
+    setExpenseAmount("");
+    setPaidBy("");
+  } catch (error) {
+    if (error instanceof Error) {
+      setExpenseFormError(error.message);
+    } else {
+      setExpenseFormError("Failed to create expense");
+    }
+  }
+}
+
   if (error) {
     return (
       <div>
@@ -120,6 +252,18 @@ function GroupPage() {
   if (!group) {
     return <p>Loading group...</p>;
   }
+
+  function getMemberName(userId: string) {
+  const member = group?.members.find(
+    (member) => member._id === userId,
+  );
+
+  if (!member) {
+    return "Unknown member";
+  }
+
+  return member.name;
+}
 
   return (
     <div>
@@ -169,7 +313,113 @@ function GroupPage() {
 </form>
 
 {memberError && <p>{memberError}</p>}
-      </div>
+          <h2>Expenses</h2>
+      <h3>Add expense</h3>
+
+<form onSubmit={handleCreateExpense}>
+  <label>
+    Description
+    <input
+      type="text"
+      value={expenseDescription}
+      onChange={(event) =>
+        setExpenseDescription(event.target.value)
+      }
+      required
+    />
+  </label>
+<h2>Balances</h2>
+
+{balanceError && <p>{balanceError}</p>}
+
+{balances.map((balance) => (
+  <div key={balance.userId}>
+    <p>
+      {getMemberName(balance.userId)}:{" "}
+      {balance.balanceCents > 0 ? "+" : ""}
+      {(balance.balanceCents / 100).toFixed(2)}{" "}
+      {group.currency}
+    </p>
+  </div>
+))}
+
+<h2>Settlements</h2>
+
+{settlements.map((settlement, index) => (
+  <div key={index}>
+    <p>
+    {getMemberName(settlement.from)} owes{" "}
+    {getMemberName(settlement.to)}{" "}
+    {(settlement.amountCents / 100).toFixed(2)}{" "}
+    {group.currency}
+    </p>
+  </div>
+))}
+  <label>
+    Amount
+    <input
+      type="number"
+      step="0.01"
+      min="0.01"
+      value={expenseAmount}
+      onChange={(event) =>
+        setExpenseAmount(event.target.value)
+      }
+      required
+    />
+  </label>
+
+  <label>
+    Paid by
+    <select
+      value={paidBy}
+      onChange={(event) =>
+        setPaidBy(event.target.value)
+      }
+      required
+    >
+      <option value="">
+        Select member
+      </option>
+
+      {group.members.map((member) => (
+        <option
+          key={member._id}
+          value={member._id}
+        >
+          {member.name}
+        </option>
+      ))}
+    </select>
+  </label>
+
+  <button type="submit">
+    Add expense
+  </button>
+</form>
+
+{expenseFormError && (
+  <p>{expenseFormError}</p>
+)}
+
+      {expensesError && <p>{expensesError}</p>}
+
+      {expenses.length === 0 && !expensesError && (
+        <p>No expenses yet.</p>
+      )}
+
+      {expenses.map((expense) => (
+        <div key={expense._id}>
+          <p>{expense.description}</p>
+
+          <p>
+            {(expense.amountCents / 100).toFixed(2)}{" "}
+            {group.currency}
+          </p>
+        </div>
+      ))}
+    
+       </div>
         );
       }
 
