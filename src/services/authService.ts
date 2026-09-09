@@ -26,6 +26,39 @@ export async function login(
   return response.json();
 }
 
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+) {
+  const response = await fetch(
+    `${API_URL}/api/auth/register`,
+    {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const data = await response.json();
+
+    throw new Error(
+      data.message || "Registration failed",
+    );
+  }
+
+  return response.json();
+}
+
 export async function getCurrentUser() {
   const response = await fetch(
     `${API_URL}/api/auth/me`,
