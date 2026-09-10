@@ -2,7 +2,7 @@ import {
   useState,
   type SyntheticEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../services/authService";
 import styles from "./LoginPage.module.css";
 
@@ -64,6 +64,9 @@ function LoginPage() {
           Login
         </button>
       </form>
+      <p>
+        Don't have an account? <Link to="/register">Register</Link>
+      </p>
     </div>
   );
 }

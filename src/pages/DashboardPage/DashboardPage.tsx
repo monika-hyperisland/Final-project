@@ -32,7 +32,7 @@ function DashboardPage() {
 
   const [groupName, setGroupName] = useState("");
   const [currency, setCurrency] = useState("EUR");
-
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -50,6 +50,8 @@ function DashboardPage() {
         setGroups(userGroups);
       } catch {
         setError("Failed to load groups");
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -143,7 +145,10 @@ function DashboardPage() {
 
       {error && <p>{error}</p>}
 
-      {groups.length === 0 && !error && (
+      {isLoading && <p>Loading...</p>}
+
+      {!isLoading && groups.length === 0 &&
+      !error && (
         <p>You don't have any groups yet.</p>
       )}
 

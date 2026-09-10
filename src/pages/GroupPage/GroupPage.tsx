@@ -50,6 +50,7 @@ interface Group {
   _id: string;
   name: string;
   currency: string;
+  createdBy: string;
   members: Member[];
 }
 
@@ -58,6 +59,7 @@ function GroupPage() {
 
 const [group, setGroup] = useState<Group | null>(null);
 const [error, setError] = useState("");
+const [isLoadingGroup, setIsLoadingGroup] = useState(true);
 
 const [memberEmail, setMemberEmail] = useState("");
 const [memberError, setMemberError] = useState("");
@@ -88,6 +90,8 @@ const navigate = useNavigate();
         setGroup(groupData);
       } catch {
         setError("Failed to load group");
+      } finally {
+        setIsLoadingGroup(false);
       }
     }
 
@@ -250,8 +254,13 @@ async function handleCreateExpense(
   }
 
   if (!group) {
-    return <p>Loading group...</p>;
-  }
+if (isLoadingGroup) {
+  return <p>Loading group...</p>;
+}
+
+if (!group) {
+  return <p>Group not found.</p>;
+}  }
 
   function getMemberName(userId: string) {
   const member = group?.members.find(
@@ -277,21 +286,23 @@ async function handleCreateExpense(
 
       <h2>Members</h2>
 
-      {group.members.map((member) => (
-        <div key={member._id}>
-          <p>{member.name}</p>
-          <p>{member.email}</p>
+{group.members.map((member) => (
+  <div key={member._id}>
+    <p>{member.name}</p>
+    <p>{member.email}</p>
 
-          <button
-      type="button"
-      onClick={() =>
-        handleRemoveMember(member._id)
-      }
-    >
-      Remove
-    </button>
-        </div>
-      ))}   
+    {member._id !== group.createdBy && (
+      <button
+        type="button"
+        onClick={() =>
+          handleRemoveMember(member._id)
+        }
+      >
+        Remove
+      </button>
+    )}
+  </div>
+))} 
        <h3>Add member</h3>
 
 <form onSubmit={handleAddMember}>
