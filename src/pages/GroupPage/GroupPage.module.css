@@ -1,0 +1,76 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+.card {
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.card form {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card input,
+.card select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.card button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.card button:hover {
+  opacity: 0.85;
+}
+.listItem {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.listItem:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: 20px 16px;
+  }
+
+  .card {
+    padding: 18px;
+  }
+
+  .card form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card input,
+  .card select,
+  .card button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

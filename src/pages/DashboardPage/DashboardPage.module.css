@@ -1,0 +1,66 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.card {
+  padding: 24px;
+  margin-bottom: 32px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.form {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.groupList {
+  display: grid;
+  gap: 16px;
+}
+
+.groupCard {
+  display: block;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.groupCard:hover {
+  background-color: #f7f7f7;
+}
+
+.form input,
+.form select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.form button,
+.header button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.form button:hover,
+.header button:hover {
+  opacity: 0.85;
+}

@@ -23,6 +23,8 @@ import {
   getBalances,
   getSettlements,
 } from "../../services/balanceService";
+
+import styles from "./GroupPage.module.css";
 interface Member {
   _id: string;
   name: string;
@@ -275,7 +277,7 @@ if (!group) {
 }
 
   return (
-    <div>
+    <main className={styles.page}>
       <Link to="/dashboard">
         ← Back to dashboard
       </Link>
@@ -284,10 +286,14 @@ if (!group) {
 
       <p>Currency: {group.currency}</p>
 
+    <section className={styles.card}>
       <h2>Members</h2>
 
 {group.members.map((member) => (
-  <div key={member._id}>
+  <div 
+  key={member._id}
+  className={styles.listItem}
+  >
     <p>{member.name}</p>
     <p>{member.email}</p>
 
@@ -322,116 +328,131 @@ if (!group) {
     Add member
   </button>
 </form>
-
 {memberError && <p>{memberError}</p>}
-          <h2>Expenses</h2>
-      <h3>Add expense</h3>
+</section>
+<section className={styles.card}>
+  <h2>Expenses</h2>
+  <h3>Add expense</h3>
 
-<form onSubmit={handleCreateExpense}>
-  <label>
-    Description
-    <input
-      type="text"
-      value={expenseDescription}
-      onChange={(event) =>
-        setExpenseDescription(event.target.value)
-      }
-      required
-    />
-  </label>
-<h2>Balances</h2>
+  <form onSubmit={handleCreateExpense}>
+    <label>
+      Description
+      <input
+        type="text"
+        value={expenseDescription}
+        onChange={(event) =>
+          setExpenseDescription(event.target.value)
+        }
+        required
+      />
+    </label>
 
-{balanceError && <p>{balanceError}</p>}
+    <label>
+      Amount
+      <input
+        type="number"
+        step="0.01"
+        min="0.01"
+        value={expenseAmount}
+        onChange={(event) =>
+          setExpenseAmount(event.target.value)
+        }
+        required
+      />
+    </label>
 
-{balances.map((balance) => (
-  <div key={balance.userId}>
-    <p>
-      {getMemberName(balance.userId)}:{" "}
-      {balance.balanceCents > 0 ? "+" : ""}
-      {(balance.balanceCents / 100).toFixed(2)}{" "}
-      {group.currency}
-    </p>
-  </div>
-))}
-
-<h2>Settlements</h2>
-
-{settlements.map((settlement, index) => (
-  <div key={index}>
-    <p>
-    {getMemberName(settlement.from)} owes{" "}
-    {getMemberName(settlement.to)}{" "}
-    {(settlement.amountCents / 100).toFixed(2)}{" "}
-    {group.currency}
-    </p>
-  </div>
-))}
-  <label>
-    Amount
-    <input
-      type="number"
-      step="0.01"
-      min="0.01"
-      value={expenseAmount}
-      onChange={(event) =>
-        setExpenseAmount(event.target.value)
-      }
-      required
-    />
-  </label>
-
-  <label>
-    Paid by
-    <select
-      value={paidBy}
-      onChange={(event) =>
-        setPaidBy(event.target.value)
-      }
-      required
-    >
-      <option value="">
-        Select member
-      </option>
-
-      {group.members.map((member) => (
-        <option
-          key={member._id}
-          value={member._id}
-        >
-          {member.name}
+    <label>
+      Paid by
+      <select
+        value={paidBy}
+        onChange={(event) =>
+          setPaidBy(event.target.value)
+        }
+        required
+      >
+        <option value="">
+          Select member
         </option>
-      ))}
-    </select>
-  </label>
 
-  <button type="submit">
-    Add expense
-  </button>
-</form>
+        {group.members.map((member) => (
+          <option
+            key={member._id}
+            value={member._id}
+          >
+            {member.name}
+          </option>
+        ))}
+      </select>
+    </label>
 
-{expenseFormError && (
-  <p>{expenseFormError}</p>
-)}
+    <button type="submit">
+      Add expense
+    </button>
+  </form>
 
-      {expensesError && <p>{expensesError}</p>}
+  {expenseFormError && (
+    <p>{expenseFormError}</p>
+  )}
 
-      {expenses.length === 0 && !expensesError && (
-        <p>No expenses yet.</p>
-      )}
+  {expensesError && (
+    <p>{expensesError}</p>
+  )}
 
-      {expenses.map((expense) => (
-        <div key={expense._id}>
-          <p>{expense.description}</p>
+  {expenses.length === 0 && !expensesError && (
+    <p>No expenses yet.</p>
+  )}
 
-          <p>
-            {(expense.amountCents / 100).toFixed(2)}{" "}
-            {group.currency}
-          </p>
-        </div>
-      ))}
-    
-       </div>
-        );
-      }
+  {expenses.map((expense) => (
+    <div key={expense._id}
+      className={styles.listItem}
+    >
+      <p>{expense.description}</p>
+
+      <p>
+        {(expense.amountCents / 100).toFixed(2)}{" "}
+        {group.currency}
+      </p>
+    </div>
+  ))}
+</section>
+
+<section className={styles.card}>
+  <h2>Balances</h2>
+
+  {balanceError && <p>{balanceError}</p>}
+
+  {balances.map((balance) => (
+    <div 
+      key={balance.userId}
+      className={styles.listItem}>
+      <p>
+        {getMemberName(balance.userId)}:{" "}
+        {balance.balanceCents > 0 ? "+" : ""}
+        {(balance.balanceCents / 100).toFixed(2)}{" "}
+        {group.currency}
+      </p>
+    </div>
+  ))}
+</section>
+
+<section className={styles.card}>
+  <h2>Settlements</h2>
+
+  {settlements.map((settlement, index) => (
+    <div 
+    key={index}
+    className={styles.listItem}>
+      <p>
+        {getMemberName(settlement.from)} owes{" "}
+        {getMemberName(settlement.to)}{" "}
+        {(settlement.amountCents / 100).toFixed(2)}{" "}
+        {group.currency}
+      </p>
+    </div>
+  ))}
+</section>
+</main>
+);
+}
 
 export default GroupPage;

@@ -14,6 +14,8 @@ import {
   getGroups,
 } from "../../services/groupService";
 
+import styles from "./DashboardPage.module.css";
+
 interface User {
   name: string;
   email: string;
@@ -93,23 +95,21 @@ function DashboardPage() {
   }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
+      <main className={styles.page}>
+        <header className={styles.header}>
 
-      {user && (
-        <p>Welcome, {user.name}</p>
-      )}
-
-      <button
-      type="button"
-      onClick={handleLogout}
-    >
-      Logout
-    </button>
-
+        <h1>Welcome, {user?.name}</h1>
+    
+        <button
+        type="button"
+        onClick={handleLogout}
+        >
+        Logout
+      </button>
+      </header>
+      <section className={styles.card}>
       <h2>Create group</h2>
-
-      <form onSubmit={handleCreateGroup}>
+       <form className={styles.form} onSubmit={handleCreateGroup}>
         <label>
           Group name
           <input
@@ -135,18 +135,16 @@ function DashboardPage() {
             <option value="USD">USD</option>
           </select>
         </label>
-
+        
         <button type="submit">
           Create group
         </button>
       </form>
-
+      </section>
       <h2>Your groups</h2>
 
       {error && <p>{error}</p>}
-
       {isLoading && <p>Loading...</p>}
-
       {!isLoading && groups.length === 0 &&
       !error && (
         <p>You don't have any groups yet.</p>
@@ -154,14 +152,16 @@ function DashboardPage() {
 
       {groups.map((group) => (
         <div key={group._id}>
-          <Link to={`/groups/${group._id}`}>
-            {group.name}
+          <Link
+          key={group._id}
+          to={`/groups/${group._id}`}
+          className={styles.groupCard}>
+            <h3>{group.name}</h3>
+            <p>Currency: {group.currency}</p>
           </Link>
-
-          <p>Currency: {group.currency}</p>
         </div>
       ))}
-    </div>
+    </main>
   );
 }
 
