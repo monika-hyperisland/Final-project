@@ -239,7 +239,7 @@ app.post("/api/groups", requireAuth, async (req, res) => {
     });
 
     return res.status(201).json({
-      id: group._id,
+      _id: group._id,
       name: group.name,
       currency: group.currency,
       createdBy: group.createdBy,
@@ -423,6 +423,20 @@ app.delete(
         });
       }
 
+      const memberHasExpenses = await Expense.exists({
+  group: id,
+  $or: [
+    { paidBy: memberId },
+    { "splits.user": memberId },
+  ],
+});
+
+    if (memberHasExpenses) {
+      return res.status(409).json({
+        message:
+          "Cannot remove a member who is part of an expense",
+      });
+    }
       const memberExists = group.members.some((id) =>
         id.equals(memberId),
       );
