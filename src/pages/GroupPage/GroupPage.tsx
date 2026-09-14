@@ -449,6 +449,9 @@ if (!group) {
         {(expense.amountCents / 100).toFixed(2)}{" "}
         {group.currency}
       </p>
+      <p>
+      Paid by: {getMemberName(expense.paidBy)}
+      </p>
     </div>
   ))}
 </section>
