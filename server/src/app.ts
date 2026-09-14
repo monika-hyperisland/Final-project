@@ -476,9 +476,26 @@ app.post(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { description, amountCents, paidBy } =
+      const {
+        description,
+        amountCents,
+        paidBy,
+        participantIds,} =
         req.body ?? {};
 
+        if (!description) {
+          return res.status(400).json({
+            message: "Description is required",
+          });
+        }
+        if (
+          !Array.isArray(participantIds) ||
+          participantIds.length === 0
+        ) {
+          return res.status(400).json({
+            message: "Select at least one participant",
+          });
+        }
       const userId = res.locals.userId;
 
       if (typeof id !== "string") {
@@ -555,7 +572,7 @@ app.post(
 
       const splits = splitAmountEqually(
         amountCents,
-        memberIds,
+        participantIds,
       );
 
       const expense = await Expense.create({
@@ -577,6 +594,7 @@ app.post(
     }
   },
 );
+
 
 app.get(
   "/api/groups/:id/expenses",

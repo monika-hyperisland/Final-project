@@ -72,6 +72,7 @@ const [expensesError, setExpensesError] = useState("");
 const [expenseDescription, setExpenseDescription] = useState("");
 const [expenseAmount, setExpenseAmount] = useState("");
 const [paidBy, setPaidBy] = useState("");
+const [participantIds, setParticipantIds] = useState<string[]>([]);
 const [expenseFormError, setExpenseFormError] = useState("");
 
 const [balances, setBalances] = useState<Balance[]>([]);
@@ -189,7 +190,21 @@ useEffect(() => {
     }
   }
 }
-
+function handleParticipantChange(
+  memberId: string,
+  checked: boolean,
+) {
+  if (checked) {
+    setParticipantIds((currentIds) => [
+      ...currentIds,
+      memberId,
+    ]);
+  } else {
+    setParticipantIds((currentIds) =>
+      currentIds.filter((id) => id !== memberId),
+    );
+  }
+}
 async function handleCreateExpense(
   event: SyntheticEvent<HTMLFormElement>,
 ) {
@@ -213,13 +228,13 @@ async function handleCreateExpense(
     setExpenseFormError("Select who paid");
     return;
   }
-
   try {
     await createExpense(
       id,
       expenseDescription,
       amountCents,
       paidBy,
+      participantIds,
     );
 
     const updatedExpenses = await getExpenses(id);
@@ -234,6 +249,7 @@ async function handleCreateExpense(
     setExpenseDescription("");
     setExpenseAmount("");
     setPaidBy("");
+    setParticipantIds([]);
   } catch (error) {
     if (error instanceof Error) {
       setExpenseFormError(error.message);
@@ -384,6 +400,27 @@ if (!group) {
         ))}
       </select>
     </label>
+
+    <fieldset>
+  <legend>Split between</legend>
+
+  {group.members.map((member) => (
+    <label key={member._id}>
+      <input
+        type="checkbox"
+        checked={participantIds.includes(member._id)}
+        onChange={(event) =>
+          handleParticipantChange(
+            member._id,
+            event.target.checked,
+          )
+        }
+      />
+
+      {member.name}
+    </label>
+  ))}
+</fieldset>
 
     <button type="submit">
       Add expense

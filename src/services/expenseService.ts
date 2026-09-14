@@ -21,6 +21,7 @@ export async function createExpense(
   description: string,
   amountCents: number,
   paidBy: string,
+  participantIds: string[],
 ) {
   const response = await fetch(
     `${API_URL}/api/groups/${groupId}/expenses`,
@@ -37,6 +38,7 @@ export async function createExpense(
         description,
         amountCents,
         paidBy,
+        participantIds,
       }),
     },
   );
