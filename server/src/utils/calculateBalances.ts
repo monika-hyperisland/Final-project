@@ -8,9 +8,15 @@ interface BalanceExpense {
   paidBy: string;
   splits: BalanceSplit[];
 }
+interface BalancePayment {
+  from: string;
+  to: string;
+  amountCents: number;
+}
 
 export function calculateBalances(
   expenses: BalanceExpense[],
+  payments: BalancePayment[] = [],
 ) {
 type Balances = {
   [userId: string]: number;
@@ -37,6 +43,19 @@ const balances: Balances = {};
       balances[userId] -= split.amountCents;
     }
   }
+
+  for (const payment of payments) {
+  if (balances[payment.from] === undefined) {
+    balances[payment.from] = 0;
+  }
+
+  if (balances[payment.to] === undefined) {
+    balances[payment.to] = 0;
+  }
+
+  balances[payment.from] += payment.amountCents;
+  balances[payment.to] -= payment.amountCents;
+}
 
   return Object.entries(balances).map(
     ([userId, balanceCents]) => {

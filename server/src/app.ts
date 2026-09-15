@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import cookieParser from "cookie-parser";
 import { loadEnvFile } from "node:process";
 
@@ -9,6 +9,7 @@ import { createAuthToken } from "./utils/auth.js";
 import { requireAuth } from "./middleware/requireAuth.js";
 import Group from "./models/Group.js";
 import Expense from "./models/Expense.js";
+import Payment from "./models/Payment.js";
 import { splitAmountEqually } from "./utils/splitExpense.js";
 import { calculateBalances } from "./utils/calculateBalances.js";
 import { calculateSettlements } from "./utils/calculateSettlements.js";
@@ -680,7 +681,9 @@ app.get(
       const expenses = await Expense.find({
         group: id,
       });
-
+      const payments = await Payment.find({
+        group: id,
+      });
       const balanceExpenses = expenses.map((expense) => {
         return {
           amountCents: expense.amountCents,
@@ -696,8 +699,14 @@ app.get(
         };
       });
 
+      const balancePayments = payments.map((payment) => ({
+        from: payment.from.toString(),
+        to: payment.to.toString(),
+        amountCents: payment.amountCents,
+      }));
       const balances = calculateBalances(
         balanceExpenses,
+        balancePayments,
       );
 
       return res.status(200).json(balances);
@@ -748,7 +757,9 @@ app.get(
       const expenses = await Expense.find({
         group: id,
       });
-
+      const payments = await Payment.find({
+        group: id,
+      });
       const balanceExpenses = expenses.map((expense) => {
         return {
           amountCents: expense.amountCents,
@@ -764,8 +775,14 @@ app.get(
         };
       });
 
+      const balancePayments = payments.map((payment) => ({
+        from: payment.from.toString(),
+        to: payment.to.toString(),
+        amountCents: payment.amountCents,
+      }));
       const balances = calculateBalances(
         balanceExpenses,
+        balancePayments,
       );
 
       const settlements = calculateSettlements(
@@ -786,6 +803,131 @@ app.get(
   },
 );
 
+app.post(
+  "/api/groups/:id/payments",
+  requireAuth,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = res.locals.userId;
+
+      const { to, amountCents } = req.body ?? {};
+
+      if (
+        typeof id !== "string" ||
+        !Types.ObjectId.isValid(id)
+      ) {
+        return res.status(400).json({
+          message: "Invalid group ID",
+        });
+      }
+
+      if (
+        typeof to !== "string" ||
+        !Types.ObjectId.isValid(to)
+      ) {
+        return res.status(400).json({
+          message: "Invalid recipient",
+        });
+      }
+
+      if (
+        !Number.isInteger(amountCents) ||
+        amountCents <= 0
+      ) {
+        return res.status(400).json({
+          message: "Invalid payment amount",
+        });
+      }
+
+      const group = await Group.findOne({
+        _id: id,
+        members: userId,
+      });
+
+      if (!group) {
+        return res.status(404).json({
+          message: "Group not found",
+        });
+      }
+
+      const recipientIsMember = group.members.some(
+        (memberId) => memberId.equals(to),
+      );
+
+      if (!recipientIsMember) {
+        return res.status(400).json({
+          message: "Recipient must be a group member",
+        });
+      }
+
+      
+      const expenses = await Expense.find({
+        group: id,
+      });
+
+      const existingPayments = await Payment.find({
+        group: id,
+      });
+
+      const balanceExpenses = expenses.map((expense) => ({
+        amountCents: expense.amountCents,
+        paidBy: expense.paidBy.toString(),
+        splits: expense.splits.map((split) => ({
+          user: split.user.toString(),
+          amountCents: split.amountCents,
+        })),
+      }));
+
+      const balancePayments = existingPayments.map((payment) => ({
+        from: payment.from.toString(),
+        to: payment.to.toString(),
+        amountCents: payment.amountCents,
+      }));
+
+      const balances = calculateBalances(
+        balanceExpenses,
+        balancePayments,
+      );
+
+      const settlements = calculateSettlements(balances);
+        
+      const settlement = settlements.find(
+        (settlement) =>
+          settlement.from === userId &&
+          settlement.to === to,
+      );
+
+      if (!settlement) {
+        return res.status(400).json({
+          message: "No payment is owed to this member",
+        });
+      }
+
+if (amountCents !== settlement.amountCents) {
+  return res.status(400).json({
+    message: "Payment amount must match the amount owed",
+  });
+}
+
+      const payment = await Payment.create({
+        group: id,
+        from: userId,
+        to,
+        amountCents,
+        createdBy: userId,
+      });
+
+      return res.status(201).json(payment);
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: "Failed to create payment",
+      });
+    }
+  },
+);
 async function startServer() {
   const mongoUri = process.env.MONGODB_URI;
 

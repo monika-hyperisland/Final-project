@@ -24,20 +24,20 @@ import {
   getSettlements,
 } from "../../services/balanceService";
 
+import { getCurrentUser } from "../../services/authService";
+import { createPayment } from "../../services/paymentService";
 import styles from "./GroupPage.module.css";
 interface Member {
   _id: string;
   name: string;
   email: string;
 }
-
 interface Expense {
   _id: string;
   description: string;
   amountCents: number;
   paidBy: string;
 }
-
 interface Balance {
   userId: string;
   balanceCents: number;
@@ -55,11 +55,18 @@ interface Group {
   createdBy: string;
   members: Member[];
 }
+interface CurrentUser {
+  id: string;
+  name: string;
+  email: string;
+}
 
 function GroupPage() {
   const { id } = useParams();
 
 const [group, setGroup] = useState<Group | null>(null);
+const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
+const [paymentError, setPaymentError] = useState("");
 const [error, setError] = useState("");
 const [isLoadingGroup, setIsLoadingGroup] = useState(true);
 
@@ -78,8 +85,22 @@ const [expenseFormError, setExpenseFormError] = useState("");
 const [balances, setBalances] = useState<Balance[]>([]);
 const [settlements, setSettlements] = useState<Settlement[]>([]);
 const [balanceError, setBalanceError] = useState("");
-
 const navigate = useNavigate();
+
+  useEffect(() => {
+  async function loadCurrentUser() {
+    try {
+      const userData = await getCurrentUser();
+      setCurrentUser(userData);
+    } catch {
+      setPaymentError(
+        "Failed to identify current user",
+      );
+    }
+  }
+
+  loadCurrentUser();
+}, []);
 
   useEffect(() => {
     async function loadGroup() {
@@ -294,6 +315,36 @@ if (isLoadingGroup) {
 if (!group) {
   return <p>Group not found.</p>;
 }  }
+
+async function handleMarkAsPaid(
+  settlement: Settlement,
+) {
+  if (!id) {
+    return;
+  }
+
+  setPaymentError("");
+
+  try {
+    await createPayment(
+      id,
+      settlement.to,
+      settlement.amountCents,
+    );
+
+    const updatedBalances = await getBalances(id);
+    const updatedSettlements = await getSettlements(id);
+
+    setBalances(updatedBalances);
+    setSettlements(updatedSettlements);
+  } catch (error) {
+    if (error instanceof Error) {
+      setPaymentError(error.message);
+    } else {
+      setPaymentError("Failed to record payment");
+    }
+  }
+}
 
   function getMemberName(userId: string) {
   const member = group?.members.find(
@@ -518,7 +569,9 @@ if (!group) {
 
 <section className={styles.card}>
   <h2>Settlements</h2>
-
+  {settlements.length === 0 && !balanceError && (
+  <p>All settled up.</p>
+  )}
   {settlements.map((settlement, index) => (
     <div 
     key={index}
@@ -529,7 +582,17 @@ if (!group) {
         {(settlement.amountCents / 100).toFixed(2)}{" "}
         {group.currency}
       </p>
+      {currentUser?.id === settlement.from && (
+  <button
+    type="button"
+    onClick={() => handleMarkAsPaid(settlement)}
+  >
+    Mark as paid
+  </button>
+)}
+      {paymentError && <p>{paymentError}</p>}
     </div>
+    
   ))}
 </section>
 </main>
