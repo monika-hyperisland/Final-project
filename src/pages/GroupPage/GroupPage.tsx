@@ -205,6 +205,21 @@ function handleParticipantChange(
     );
   }
 }
+function handleSelectAllParticipants(
+  checked: boolean,
+) {
+  if (!group) {
+    return;
+  }
+
+  if (checked) {
+    setParticipantIds(
+      group.members.map((member) => member._id),
+    );
+  } else {
+    setParticipantIds([]);
+  }
+}
 async function handleCreateExpense(
   event: SyntheticEvent<HTMLFormElement>,
 ) {
@@ -350,7 +365,9 @@ if (!group) {
   <h2>Expenses</h2>
   <h3>Add expense</h3>
 
-  <form onSubmit={handleCreateExpense}>
+  <form 
+  className={styles.expenseForm}
+  onSubmit={handleCreateExpense}>
     <label>
       Description
       <input
@@ -401,11 +418,31 @@ if (!group) {
       </select>
     </label>
 
-    <fieldset>
+    <fieldset className={styles.participants}>
   <legend>Split between</legend>
+  <label className={styles.participantOption}>
+  <input
+    type="checkbox"
+    checked={
+      group.members.length > 0 &&
+      group.members.every((member) =>
+        participantIds.includes(member._id),
+      )
+    }
+    onChange={(event) =>
+      handleSelectAllParticipants(
+        event.target.checked,
+      )
+    }
+  />
 
+  <span>All members</span>
+</label>
   {group.members.map((member) => (
-    <label key={member._id}>
+    <label 
+    key={member._id}
+    className={styles.participantOption}
+    >
       <input
         type="checkbox"
         checked={participantIds.includes(member._id)}
@@ -416,13 +453,17 @@ if (!group) {
           )
         }
       />
+      <span>{member.name}</span>
 
-      {member.name}
     </label>
+    
   ))}
 </fieldset>
 
-    <button type="submit">
+    <button 
+    type="submit"
+    className={styles.expenseSubmit}
+  >
       Add expense
     </button>
   </form>
