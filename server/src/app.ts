@@ -14,8 +14,9 @@ import { splitAmountEqually } from "./utils/splitExpense.js";
 import { calculateBalances } from "./utils/calculateBalances.js";
 import { calculateSettlements } from "./utils/calculateSettlements.js";
 import cors from "cors";
-loadEnvFile();
-
+if (process.env.NODE_ENV !== "production") {
+  loadEnvFile();
+}
 const app = express();
 
 app.use(
@@ -30,7 +31,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 
 app.get("/api/health", (_req, res) => {
   res.json({
