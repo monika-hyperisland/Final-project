@@ -174,7 +174,7 @@ npm run build
 
 Project Status
 
-The main MVP flow is implemented:
+The main MVP flow is implemented and deployed:
 
 Register
 → Login
@@ -218,3 +218,23 @@ Register
 ### Payments
 
 - `POST /api/groups/:id/payments` — record a completed settlement payment
+
+## Deployment
+
+The application is deployed using:
+
+- Frontend: Vercel
+- Backend: Render
+- Database: MongoDB Atlas
+
+### Live Application
+
+Frontend:
+https://final-project-five-sepia-19.vercel.app
+
+Backend API:
+https://final-project-39ak.onrender.com
+
+The production frontend communicates with the deployed REST API using the `VITE_API_URL` environment variable.
+
+The backend uses environment variables for the MongoDB connection, JWT secret, allowed frontend origin, and production configuration.
