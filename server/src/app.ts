@@ -20,7 +20,9 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: 
+      process.env.FRONTEND_URL ??
+      "http://localhost:5173",
     credentials: true,
   }),
 );
@@ -34,22 +36,6 @@ app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
   });
-});
-
-app.get("/api/users", async (_req, res) => {
-  try {
-    const users = await User.find().select(
-      "name email createdAt updatedAt",
-    );
-
-    return res.status(200).json(users);
-  } catch (error) {
-    console.error("Failed to fetch users:", error);
-
-    return res.status(500).json({
-      message: "Failed to fetch users",
-    });
-  }
 });
 
 app.post("/api/auth/register", async (req, res) => {
