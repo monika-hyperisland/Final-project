@@ -1,74 +1,497 @@
 .page {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 40px 24px 60px;
+}
+
+.page > h1 {
+  margin-bottom: 28px;
+
+  color: var(--color-primary);
+  font-size: 2rem;
 }
 
 .card {
-  padding: 24px;
   margin-bottom: 24px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
+  padding: 26px;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+
+  box-shadow: var(--shadow-card);
+}
+
+.card h2 {
+  margin-bottom: 18px;
+
+  color: var(--color-primary);
 }
 
 .card form {
   display: flex;
+  align-items: end;
   gap: 12px;
-  align-items: end;
   flex-wrap: wrap;
+
   margin-top: 16px;
-}
-.card .expenseForm {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  align-items: end;
 }
 
 .card label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+
+  color: var(--color-primary);
+  font-weight: 600;
 }
 
 .card input:not([type="checkbox"]),
 .card select {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font: inherit;
+  padding: 11px 13px;
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.card input:not([type="checkbox"]):focus,
+.card select:focus {
+  outline: none;
+
+  border-color: var(--color-secondary);
+
+  box-shadow:
+    0 0 0 3px rgba(241, 255, 88, 0.5);
 }
 
 .card button {
   padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
+
+  background: var(--color-primary);
+  color: var(--color-accent);
+
+  border: 1px solid var(--color-primary);
+  border-radius: 9px;
+
+  font-weight: 600;
   cursor: pointer;
-  font: inherit;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
+
+.card button:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+
+  transform: translateY(-1px);
+}
+
+.listItem {
+  padding: 16px 0;
+
+  border-bottom: 1px solid var(--color-border);
+}
+
+.listItem:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.listItem p {
+  margin-bottom: 8px;
+}
+
+.card .expenseForm {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+  align-items: end;
+}
+
+.participants {
+  grid-column: 1 / -1;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+
+  background: var(--color-soft);
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.participants legend {
+  padding: 0 8px;
+
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.card .participantOption {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0;
+
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.participantOption input {
+  width: auto;
+  margin: 0;
+  padding: 0;
+
+  accent-color: var(--color-secondary);
+}
+
 .expenseSubmit {
   grid-column: 1 / -1;
   justify-self: start;
 }
-.card button:hover {
-  opacity: 0.85;
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  background: var(--color-primary);
+  color: var(--color-accent);
+
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
 }
+
+.success {
+  padding: 10px 12px;
+
+  background: var(--color-accent);
+  color: var(--color-primary);
+
+  border-radius: 8px;
+
+  font-weight: 600;
+}
+
+.dangerButton {
+  background: transparent !important;
+  color: var(--color-primary) !important;
+
+  border: 1px solid var(--color-primary) !important;
+}
+
+.dangerButton:hover {
+  background: var(--color-primary) !important;
+  color: var(--color-accent) !important;
+}
+
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+.page > h1 {
+  margin-bottom: 28px;
+
+  color: var(--color-primary);
+  font-size: 2rem;
+}
+
+.card {
+  margin-bottom: 24px;
+  padding: 26px;
+
+  background: var(--color-surface);
+
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+
+  box-shadow: var(--shadow-card);
+}
+
+.card h2 {
+  margin-bottom: 18px;
+
+  color: var(--color-primary);
+}
+
+.card form {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+
+  margin-top: 16px;
+}
+
+.card label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.card input:not([type="checkbox"]),
+.card select {
+  padding: 11px 13px;
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.card input:not([type="checkbox"]):focus,
+.card select:focus {
+  outline: none;
+
+  border-color: var(--color-secondary);
+
+  box-shadow:
+    0 0 0 3px rgba(241, 255, 88, 0.5);
+}
+
+.card button {
+  padding: 10px 16px;
+
+  background: var(--color-primary);
+  color: var(--color-accent);
+
+  border: 1px solid var(--color-primary);
+  border-radius: 9px;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.card button:hover {
+  background: var(--color-secondary);
+  border-color: var(--color-secondary);
+
+  transform: translateY(-1px);
+}
+
 .listItem {
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  padding: 16px 0;
+
+  border-bottom: 1px solid var(--color-border);
 }
 
 .listItem:last-child {
+  padding-bottom: 0;
   border-bottom: none;
+}
+
+.listItem p {
+  margin-bottom: 8px;
+}
+
+.card .expenseForm {
+  display: grid;
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 16px;
+  align-items: end;
+}
+
+.participants {
+  grid-column: 1 / -1;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+
+  background: var(--color-soft);
+
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.participants legend {
+  padding: 0 8px;
+
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.card .participantOption {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0;
+
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.participantOption input {
+  width: auto;
+  margin: 0;
+  padding: 0;
+
+  accent-color: var(--color-secondary);
+}
+
+.expenseSubmit {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+.error {
+  margin-top: 12px;
+  padding: 10px 12px;
+
+  background: var(--color-primary);
+  color: var(--color-accent);
+
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.success {
+  padding: 10px 12px;
+
+  background: var(--color-accent);
+  color: var(--color-primary);
+
+  border-radius: 8px;
+
+  font-weight: 600;
+}
+
+.dangerButton {
+  background: transparent !important;
+  color: var(--color-primary) !important;
+
+  border: 1px solid var(--color-primary) !important;
+}
+
+.dangerButton:hover {
+  background: var(--color-primary) !important;
+  color: var(--color-accent) !important;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.balanceRow:last-child {
+  border-bottom: none;
+}
+
+.balanceName {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.balanceAmount {
+  margin-left: 8px;
+
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.balancePositive {
+  color: #1e7a47;
+}
+
+.balanceNegative {
+  color: #a03333;
+}
+
+.balanceZero {
+  color: var(--color-text-muted);
+}
+
+.settledMessage {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.settlementRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settlementRow:last-child {
+  border-bottom: none;
+}
+
+.settlementInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+
+  color: var(--color-primary);
+}
+
+.owesText {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+.settlementInfo strong {
+  margin-left: 6px;
+
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.paymentButton {
+  background: var(--color-accent) !important;
+  color: var(--color-primary) !important;
 }
 
 @media (max-width: 600px) {
   .page {
-    padding: 20px 16px;
+    padding: 24px 16px 40px;
   }
 
   .card {
-    padding: 18px;
+    padding: 20px;
   }
 
   .card form {
@@ -80,37 +503,31 @@
   .card select,
   .card button {
     width: 100%;
-    box-sizing: border-box;
   }
-}
 
-.participants {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  width: 100%;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 16px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
+  .card .expenseForm {
+    grid-template-columns: 1fr;
+  }
 
-.participants legend {
-  padding: 0 6px;
-}
+  .participants,
+  .expenseSubmit {
+    grid-column: 1;
+  }
 
-.card .participantOption {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  cursor: pointer;
-}
+  .expenseSubmit {
+    justify-self: stretch;
+  }
 
-.participantOption input {
-  width: auto;
-  margin: 0;
+  .balanceRow {
+    align-items: flex-start;
+  }
+
+  .settlementRow {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .paymentButton {
+    width: 100%;
+  }
 }

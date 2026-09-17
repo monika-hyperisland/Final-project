@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 
 import { register } from "../../services/authService";
+import styles from "./Auth.module.css";
 
 function RegisterPage() {
   const [name, setName] = useState("");
@@ -42,10 +43,13 @@ function RegisterPage() {
   }
 
   return (
-    <div>
-      <h1>Register</h1>
+    <div className={styles.page}>
+      <div className={styles.card}>
+       <h1 className={styles.title}>Register</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form 
+      className={styles.form}
+      onSubmit={handleSubmit}>
         <label>
           Name
           <input
@@ -82,21 +86,26 @@ function RegisterPage() {
           />
         </label>
 
+        {error && (
+          <p className={styles.error}>{error}</p>
+        )}
+
         <button type="submit">
           Create account
         </button>
       </form>
 
-      {error && <p>{error}</p>}
-
-      <p>
+      <p className={styles.switchText}>
         Already have an account?{" "}
-        <Link to="/login">
+        <Link
+          className={styles.link}
+          to="/login"
+        >
           Login
         </Link>
       </p>
     </div>
-  );
+  </div>
+);
 }
-
 export default RegisterPage;

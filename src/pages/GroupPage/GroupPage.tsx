@@ -360,9 +360,12 @@ async function handleMarkAsPaid(
 
   return (
     <main className={styles.page}>
-      <Link to="/dashboard">
-        ← Back to dashboard
-      </Link>
+      <Link 
+      to="/dashboard"
+     className={styles.backLink}
+  > 
+        ← Dashboard
+          </Link>
 
       <h1>{group.name}</h1>
 
@@ -382,6 +385,7 @@ async function handleMarkAsPaid(
     {member._id !== group.createdBy && (
       <button
         type="button"
+        className={styles.dangerButton}
         onClick={() =>
           handleRemoveMember(member._id)
         }
@@ -410,7 +414,8 @@ async function handleMarkAsPaid(
     Add member
   </button>
 </form>
-{memberError && <p>{memberError}</p>}
+{memberError && (
+  <p className={styles.error}>{memberError}</p>)}
 </section>
 <section className={styles.card}>
   <h2>Expenses</h2>
@@ -520,11 +525,13 @@ async function handleMarkAsPaid(
   </form>
 
   {expenseFormError && (
-    <p>{expenseFormError}</p>
+    <p className={styles.error}>
+      {expenseFormError}</p>
   )}
 
   {expensesError && (
-    <p>{expensesError}</p>
+    <p className={styles.error}>
+      {expensesError}</p>
   )}
 
   {expenses.length === 0 && !expensesError && (
@@ -551,49 +558,90 @@ async function handleMarkAsPaid(
 <section className={styles.card}>
   <h2>Balances</h2>
 
-  {balanceError && <p>{balanceError}</p>}
+  {balanceError && (
+    <p className={styles.error}>
+      {balanceError}
+    </p>
+  )}
 
   {balances.map((balance) => (
-    <div 
+    <div
       key={balance.userId}
-      className={styles.listItem}>
-      <p>
-        {getMemberName(balance.userId)}:{" "}
+      className={styles.balanceRow}
+    >
+      <span className={styles.balanceName}>
+        {getMemberName(balance.userId)}
+      </span>
+
+      <span
+        className={`${styles.balanceAmount} ${
+          balance.balanceCents > 0
+            ? styles.balancePositive
+            : balance.balanceCents < 0
+              ? styles.balanceNegative
+              : styles.balanceZero
+        }`}
+      >
         {balance.balanceCents > 0 ? "+" : ""}
         {(balance.balanceCents / 100).toFixed(2)}{" "}
         {group.currency}
-      </p>
+      </span>
     </div>
   ))}
 </section>
 
 <section className={styles.card}>
   <h2>Settlements</h2>
+
   {settlements.length === 0 && !balanceError && (
-  <p>All settled up.</p>
+    <p className={styles.settledMessage}>
+      All settled up.
+    </p>
   )}
-  {settlements.map((settlement, index) => (
-    <div 
-    key={index}
-    className={styles.listItem}>
-      <p>
-        {getMemberName(settlement.from)} owes{" "}
-        {getMemberName(settlement.to)}{" "}
-        {(settlement.amountCents / 100).toFixed(2)}{" "}
-        {group.currency}
-      </p>
+
+  {settlements.map((settlement) => (
+    <div
+      key={`${settlement.from}-${settlement.to}`}
+      className={styles.settlementRow}
+    >
+      <div className={styles.settlementInfo}>
+        <span>
+          {getMemberName(settlement.from)}
+        </span>
+
+        <span className={styles.owesText}>
+          owes
+        </span>
+
+        <span>
+          {getMemberName(settlement.to)}
+        </span>
+
+        <strong>
+          {(settlement.amountCents / 100).toFixed(2)}{" "}
+          {group.currency}
+        </strong>
+      </div>
+
       {currentUser?.id === settlement.from && (
-  <button
-    type="button"
-    onClick={() => handleMarkAsPaid(settlement)}
-  >
-    Mark as paid
-  </button>
-)}
-      {paymentError && <p>{paymentError}</p>}
+        <button
+          type="button"
+          className={styles.paymentButton}
+          onClick={() =>
+            handleMarkAsPaid(settlement)
+          }
+        >
+          Mark as paid
+        </button>
+      )}
     </div>
-    
   ))}
+
+  {paymentError && (
+    <p className={styles.error}>
+      {paymentError}
+    </p>
+  )}
 </section>
 </main>
 );

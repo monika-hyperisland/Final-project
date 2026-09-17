@@ -4,8 +4,7 @@ import {
 } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../services/authService";
-import styles from "./LoginPage.module.css";
-
+import styles from "./Auth.module.css";
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,10 +29,13 @@ function LoginPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <h1>Login</h1>
+    <div className={styles.page}>
+     <div className={styles.card}>
+      <h1 className={styles.title}>Login</h1>
 
-      <form onSubmit={handleSubmit}>
+      <form 
+        className={styles.form} 
+        onSubmit={handleSubmit}>
         <label>
           Email
           <input
@@ -58,17 +60,26 @@ function LoginPage() {
           />
         </label>
 
-        {error && <p>{error}</p>}
+        {error && (
+         <p className={styles.error}>{error}</p>
+        )}
 
         <button type="submit">
           Login
         </button>
       </form>
-      <p>
-        Don't have an account? <Link to="/register">Register</Link>
+
+      <p className={styles.switchText}>
+        Don't have an account?{" "}
+        <Link
+          className={styles.link}
+          to="/register"
+        >
+          Register
+        </Link>
       </p>
     </div>
-  );
-}
+  </div>
+);}
 
 export default LoginPage;

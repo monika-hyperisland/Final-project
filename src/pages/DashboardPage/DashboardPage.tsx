@@ -141,17 +141,25 @@ function DashboardPage() {
         </button>
       </form>
       </section>
-      <h2>Your groups</h2>
+      <h2 className={styles.sectionTitle}>Your groups</h2>
 
-      {error && <p>{error}</p>}
-      {isLoading && <p>Loading...</p>}
-      {!isLoading && groups.length === 0 &&
-      !error && (
-        <p>You don't have any groups yet.</p>
+      {error && (
+        <p className={styles.error}>{error}</p>
       )}
 
+      {isLoading && (
+        <p className={styles.emptyState}>Loading...</p>
+      )}
+
+      {!isLoading && 
+       groups.length === 0 &&
+       !error && (
+        <p className={styles.emptyState}>
+          You don't have any groups yet.</p>
+      )}
+
+      <div className={styles.groupList}>
       {groups.map((group) => (
-        <div key={group._id}>
           <Link
           key={group._id}
           to={`/groups/${group._id}`}
@@ -159,8 +167,8 @@ function DashboardPage() {
             <h3>{group.name}</h3>
             <p>Currency: {group.currency}</p>
           </Link>
-        </div>
       ))}
+      </div>
     </main>
   );
 }
