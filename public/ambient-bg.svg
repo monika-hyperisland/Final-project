@@ -1,0 +1,36 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1600" y2="1200" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D2D2F"/>
+      <stop offset="0.5" stop-color="#1E4F4B"/>
+      <stop offset="1" stop-color="#3A6F66"/>
+    </linearGradient>
+    <radialGradient id="glowA" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(350 250) rotate(44) scale(540 380)">
+      <stop offset="0" stop-color="#F3FF8C" stop-opacity="0.44"/>
+      <stop offset="1" stop-color="#F3FF8C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1240 840) rotate(12) scale(620 400)">
+      <stop offset="0" stop-color="#8EE3C8" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#8EE3C8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="blur" x="-120" y="-120" width="1840" height="1440" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="38"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1200" fill="url(#sky)"/>
+
+  <g filter="url(#blur)">
+    <path d="M-40 360C210 170 530 170 790 300C1060 430 1360 470 1680 330V880H-40V360Z" fill="#133A3D"/>
+    <path d="M-40 620C200 500 460 490 720 560C990 630 1330 670 1680 560V1200H-40V620Z" fill="#0B2427"/>
+  </g>
+
+  <circle cx="350" cy="250" r="520" fill="url(#glowA)"/>
+  <circle cx="1240" cy="840" r="560" fill="url(#glowB)"/>
+
+  <g opacity="0.1" stroke="#FFFFFF" stroke-width="1">
+    <path d="M110 170L500 270"/>
+    <path d="M960 180L1440 280"/>
+    <path d="M760 850L1360 1020"/>
+  </g>
+</svg>

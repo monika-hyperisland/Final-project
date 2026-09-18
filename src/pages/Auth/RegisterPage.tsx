@@ -44,8 +44,17 @@ function RegisterPage() {
 
   return (
     <div className={styles.page}>
+      <div className={`${styles.brandRow} ${styles.pageBrand}`}>
+        <div className={styles.logoMark}>S</div>
+        <div>
+          <p className={styles.brandText}>Smart Expense Splitter</p>
+          <p className={styles.appName}>SplitFlow</p>
+        </div>
+      </div>
+
       <div className={styles.card}>
        <h1 className={styles.title}>Register</h1>
+      <p className={styles.subtitle}>Create your account and start splitting bills with your crew.</p>
 
       <form 
       className={styles.form}

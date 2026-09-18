@@ -98,7 +98,13 @@ function DashboardPage() {
       <main className={styles.page}>
         <header className={styles.header}>
 
-        <h1>Welcome, {user?.name}</h1>
+        <div className={styles.brandCluster}>
+          <div className={styles.logoMark}>S</div>
+          <div>
+            <p className={styles.brandText}>SplitFlow Workspace</p>
+            <h1>Welcome, {user?.name}</h1>
+          </div>
+        </div>
     
         <button
         type="button"

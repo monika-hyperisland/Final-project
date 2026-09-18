@@ -1,11 +1,11 @@
 import { useEffect,
+  useRef,
   useState,
   type SyntheticEvent 
 } from "react";
 
 import {
   Link,
-  useNavigate,
   useParams,
 } from "react-router-dom";
 
@@ -72,6 +72,7 @@ const [isLoadingGroup, setIsLoadingGroup] = useState(true);
 
 const [memberEmail, setMemberEmail] = useState("");
 const [memberError, setMemberError] = useState("");
+const memberErrorRef = useRef<HTMLParagraphElement | null>(null);
 
 const [expenses, setExpenses] = useState<Expense[]>([]);
 const [expensesError, setExpensesError] = useState("");
@@ -85,7 +86,6 @@ const [expenseFormError, setExpenseFormError] = useState("");
 const [balances, setBalances] = useState<Balance[]>([]);
 const [settlements, setSettlements] = useState<Settlement[]>([]);
 const [balanceError, setBalanceError] = useState("");
-const navigate = useNavigate();
 
   useEffect(() => {
   async function loadCurrentUser() {
@@ -160,6 +160,21 @@ useEffect(() => {
 
   loadBalances();
 }, [id]);
+
+useEffect(() => {
+  if (!memberError) {
+    return;
+  }
+
+  if (!window.matchMedia("(max-width: 600px)").matches) {
+    return;
+  }
+
+  memberErrorRef.current?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+}, [memberError]);
 
   async function handleAddMember(
   event: SyntheticEvent<HTMLFormElement>,
@@ -297,24 +312,67 @@ async function handleCreateExpense(
 
   if (error) {
     return (
-      <div>
-        <p>{error}</p>
+      <main className={styles.page}>
+        <section className={styles.stateCard}>
+          <div className={styles.brandCluster}>
+            <div className={styles.logoMark}>S</div>
+            <div>
+              <p className={styles.brandText}>SplitFlow Workspace</p>
+              <h1 className={styles.stateTitle}>Could not load group</h1>
+            </div>
+          </div>
 
-        <button onClick={() => navigate("/dashboard")}>
-          Back to dashboard
-        </button>
-      </div>
+          <p className={styles.error}>{error}</p>
+
+          <Link to="/dashboard" className={styles.backLink} aria-label="Back to dashboard" title="Back to dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.backIcon}>
+              <path d="M9.5 4.5 2 12l7.5 7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 12h18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </Link>
+        </section>
+      </main>
+    );
+  }
+
+  if (isLoadingGroup) {
+    return (
+      <main className={styles.page}>
+        <section className={styles.stateCard}>
+          <div className={styles.brandCluster}>
+            <div className={styles.logoMark}>S</div>
+            <div>
+              <p className={styles.brandText}>SplitFlow Workspace</p>
+              <h1 className={styles.stateTitle}>Loading group...</h1>
+            </div>
+          </div>
+        </section>
+      </main>
     );
   }
 
   if (!group) {
-if (isLoadingGroup) {
-  return <p>Loading group...</p>;
-}
+    return (
+      <main className={styles.page}>
+        <section className={styles.stateCard}>
+          <div className={styles.brandCluster}>
+            <div className={styles.logoMark}>S</div>
+            <div>
+              <p className={styles.brandText}>SplitFlow Workspace</p>
+              <h1 className={styles.stateTitle}>Group not found</h1>
+            </div>
+          </div>
 
-if (!group) {
-  return <p>Group not found.</p>;
-}  }
+          <Link to="/dashboard" className={styles.backLink} aria-label="Back to dashboard" title="Back to dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.backIcon}>
+              <path d="M9.5 4.5 2 12l7.5 7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M3 12h18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            </svg>
+          </Link>
+        </section>
+      </main>
+    );
+  }
 
 async function handleMarkAsPaid(
   settlement: Settlement,
@@ -360,16 +418,24 @@ async function handleMarkAsPaid(
 
   return (
     <main className={styles.page}>
-      <Link 
-      to="/dashboard"
-     className={styles.backLink}
-  > 
-        ← Dashboard
-          </Link>
+      <header className={styles.topBar}>
+        <div className={styles.brandCluster}>
+          <div className={styles.logoMark}>S</div>
+          <div>
+            <p className={styles.brandText}>SplitFlow Workspace</p>
+            <h1>{group.name}</h1>
+          </div>
+        </div>
 
-      <h1>{group.name}</h1>
+        <Link to="/dashboard" className={styles.backLink} aria-label="Back to dashboard" title="Back to dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.backIcon}>
+            <path d="M9.5 4.5 2 12l7.5 7.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M3 12h18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </Link>
+      </header>
 
-      <p>Currency: {group.currency}</p>
+      <p className={styles.groupMeta}>Currency: {group.currency}</p>
 
     <section className={styles.card}>
       <h2>Members</h2>
@@ -415,7 +481,9 @@ async function handleMarkAsPaid(
   </button>
 </form>
 {memberError && (
-  <p className={styles.error}>{memberError}</p>)}
+  <p ref={memberErrorRef} className={`${styles.error} ${styles.memberError}`}>
+    {memberError}
+  </p>)}
 </section>
 <section className={styles.card}>
   <h2>Expenses</h2>
