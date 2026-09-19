@@ -321,16 +321,19 @@ app.post(
         });
       }
 
-      const group = await Group.findOne({
-        _id: id,
-        createdBy: userId,
-      });
+const group = await Group.findById(id);
 
-      if (!group) {
-        return res.status(404).json({
-          message: "Group not found",
-        });
-      }
+if (!group) {
+  return res.status(404).json({
+    message: "Group not found",
+  });
+}
+
+if (!group.createdBy.equals(userId)) {
+  return res.status(403).json({
+    message: "Only the group creator can add members",
+  });
+}
 
       const member = await User.findOne({
         email: normalizedEmail,
@@ -400,23 +403,26 @@ app.delete(
         });
       }
 
-      const group = await Group.findOne({
-        _id: id,
-        createdBy: userId,
-      });
+    const group = await Group.findById(id);
 
-      if (!group) {
-        return res.status(404).json({
-          message: "Group not found",
-        });
-      }
+    if (!group) {
+      return res.status(404).json({
+        message: "Group not found",
+      });
+    }
+
+    if (!group.createdBy.equals(userId)) {
+      return res.status(403).json({
+        message: "Only the group creator can remove members",
+      });
+    }
 
       if (group.createdBy.equals(memberId)) {
         return res.status(400).json({
           message: "Group creator cannot be removed",
         });
       }
-
+      
       const memberHasExpenses = await Expense.exists({
   group: id,
   $or: [
